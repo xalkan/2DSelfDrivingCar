@@ -3,7 +3,7 @@ A 2D self driving car using Deep Q Networks in pytorch
 
 This is the first project from the course on Artificial Intelligence A-Z after learning about the Q learning algorithm, Markov Decision Processes, Temporal Difference and Deep Q Networks.
 
-My goal is to build the thing and then expand it more features in a learning mindset.
+My goal is to build the core thing and then expand it with a learning mindset.
 
 ## Setting up the Environment
 Create a new conda environment
