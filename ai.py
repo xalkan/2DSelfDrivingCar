@@ -62,6 +62,62 @@ class ReplayMemory(object):
         # returns a list of pytorch variables
         return map(lambda x: Variable(torch.cat(x, 0)), samples)
 
+class Dqn():
+
+    # input_size - encoded state as inputs of nn
+    # nb_action - possible actions as outputs of nn
+    # gamma - discount factor
+    # reward_window - mean of the reward over time of last 100 iterations
+
+    # composing our transition events
+    # last_state - batch tensor with input_size + 1 dimensions
+    # last_action - last action
+    # last_reward - last reward
+    def __init__(self, input_size, nb_action, gamma):
+        self.gamma = gamma
+        self.reward_window = []
+        self.model = Network(input_size, nb_action)
+        self.memory = ReplayMemory(100000)
+        self.optimizer = optim.Adam(self.model.parameters(), lr = 0.001)
+        self.last_state = torch.Tensor(input_size).unsqueeze(0)
+        self.last_action = 0
+        self.last_reward = 0.0
+
+    # we wont be associating the gradient in this input state with the computation graph
+    # of nn module for performance and saving memory
+    # Tempareture parameter modulates which action nn decides to play
+    # higher - more sure, higher prob of winning q value, lower - less sure
+    # or how much exploration vs exploitation ratio we want
+    # Here, tempareture is 7
+    def select_action(self, state):
+        probs = F.softmax(self.model(Variable(state, volatile = True)) *7 )
+        action = probs.multinomial()    # returns pytorch tensor
+        return action.data[0,0]         # returns action
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
