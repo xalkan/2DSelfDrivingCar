@@ -116,9 +116,43 @@ class Dqn():
         # push new state into memory for experience replay
         new_state = torch.Tensor(new_signal).float().unsqueeze(0)
         self.memory.push((self.last_state, new_state, torch.LongTensor([int(self.last_action)]), torch.Tensor([self.last_reward]) )
+        # get action based on this new state
+        action = self.select_action(new_state)
+        # learn
+        if len(self.memory.memory) > 100:
+            batch_state, batch_next_state, batch_reward, batch_action = self.memory.sample(100)
+            self.learn(batch_state, batch_next_state, batch_reward, batch_action)
 
+        # update action, state and reward
+        self.last_action = action
+        self.last_state = new_state
+        self.last_reward = reward
 
+        # reward window size should be fixed
+        self.reward_window.append(reward)
+        if len(self.reward_window) > 1000:
+            del self.reward_window[0]
 
+        return action
+
+    def score(self):
+        return sum(self.reward_window)/(len(self.reward_window)+1)      # safety check for dividing by zero
+
+    def save(self):
+        # only save nn and optimizer state
+        torch.save({'state_dict': self.model.state_dict(), 'optimizer':self.optimizer.state_dict()}, 'last_brain.pth')
+
+    def load(self):
+        # if last_brain.pth exists load it
+        if os.path.isfile('last_brain.pth'):
+            print('Loading model...')
+            checkpoint = torch.load('last_brain.pth')
+            self.model.load_state_dict(checkpoint['state_dict'])
+            self.optimizer.load_state_dict(checkpoint['optimizer'])
+        else:
+            print('no saved model found.')
+
+    
 
 
 
