@@ -94,7 +94,28 @@ class Dqn():
         action = probs.multinomial()    # returns pytorch tensor
         return action.data[0,0]         # returns action
 
+    # TODO get back to this at the end
+    def learn(self, batch_state, batch_next_state, batch_reward, batch_action):
+        # get actions and convert them into vectors from tensors
+        # 0 index is state, at index 1 is action
+        outputs = self.model(batch_state).gather(1, batch_action.unsqueeze(1)).squeeze(1)
+        # next outputs of the next states as used in q learning equation
+        next_outputs = self.model(batch_next_state).detach().max(1)[0]
+        # target q values calculated from q learning equation
+        target = self.gamma * next_outputs + batch_reward
+        # loss function is 
+        td_loss = F.smooth_l1_loss(outputs, target)
+        # reset the optimizer
+        self.optimizer.zero_grad()
+        # perform backprop
+        td_loss.backward(retain_variables = True)
+        self.optimizer.step()
 
+    def update(self, reward, new_signal):
+        # new_signal is new state or new observation
+        # push new state into memory for experience replay
+        new_state = torch.Tensor(new_signal).float().unsqueeze(0)
+        self.memory.push((self.last_state, new_state, torch.LongTensor([int(self.last_action)]), torch.Tensor([self.last_reward]) )
 
 
 
