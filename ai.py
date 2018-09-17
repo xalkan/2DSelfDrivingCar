@@ -53,7 +53,7 @@ class ReplayMemory(object):
         # zip is like reshape function because we need to transform
         # [ [state1, action1, reward1], [state2, reward2, action2] ] to
         # [ [state1, state2], [action1, action2], [reward1, reward2] ]
-        samples = zip(*random.sample(self.memory, batch_size)
+        samples = zip(*random.sample(self.memory, batch_size))
         # convert samples to torch variables
         # concatenate w.r.t first dimension (states)
         # so that states, action, rewards are aligned
@@ -81,7 +81,7 @@ class Dqn():
         self.optimizer = optim.Adam(self.model.parameters(), lr = 0.001)
         self.last_state = torch.Tensor(input_size).unsqueeze(0)
         self.last_action = 0
-        self.last_reward = 0.0
+        self.last_reward = 0
 
     # we wont be associating the gradient in this input state with the computation graph
     # of nn module for performance and saving memory
@@ -90,7 +90,7 @@ class Dqn():
     # or how much exploration vs exploitation ratio we want
     # Here, tempareture is 7
     def select_action(self, state):
-        probs = F.softmax(self.model(Variable(state, volatile = True)) *7 )
+        probs = F.softmax(self.model(Variable(state, volatile = True)) *100 )
         action = probs.multinomial()    # returns pytorch tensor
         return action.data[0,0]         # returns action
 
@@ -115,12 +115,12 @@ class Dqn():
         # new_signal is new state or new observation
         # push new state into memory for experience replay
         new_state = torch.Tensor(new_signal).float().unsqueeze(0)
-        self.memory.push((self.last_state, new_state, torch.LongTensor([int(self.last_action)]), torch.Tensor([self.last_reward]) )
+        self.memory.push((self.last_state, new_state, torch.LongTensor([int(self.last_action)]), torch.Tensor([self.last_reward]) ))
         # get action based on this new state
         action = self.select_action(new_state)
         # learn
         if len(self.memory.memory) > 100:
-            batch_state, batch_next_state, batch_reward, batch_action = self.memory.sample(100)
+            batch_state, batch_next_state, batch_action, batch_reward  = self.memory.sample(100)
             self.learn(batch_state, batch_next_state, batch_reward, batch_action)
 
         # update action, state and reward
@@ -136,7 +136,7 @@ class Dqn():
         return action
 
     def score(self):
-        return sum(self.reward_window)/(len(self.reward_window)+1)      # safety check for dividing by zero
+        return sum(self.reward_window)/(len(self.reward_window)+1.)      # safety check for dividing by zero
 
     def save(self):
         # only save nn and optimizer state
