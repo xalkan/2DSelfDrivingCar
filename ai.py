@@ -91,7 +91,7 @@ class Dqn():
     # Here, tempareture is 7
     def select_action(self, state):
         probs = F.softmax(self.model(Variable(state, volatile = True)) *100 )
-        action = probs.multinomial()    # returns pytorch tensor
+        action = probs.multinomial(1)    # returns pytorch tensor
         return action.data[0,0]         # returns action
 
     # TODO get back to this at the end
@@ -108,7 +108,7 @@ class Dqn():
         # reset the optimizer
         self.optimizer.zero_grad()
         # perform backprop
-        td_loss.backward(retain_variables = True)
+        td_loss.backward(retain_graph = True)
         self.optimizer.step()
 
     def update(self, reward, new_signal):
