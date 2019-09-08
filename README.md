@@ -3,7 +3,7 @@
 
 A 2D self driving car using Deep Q Networks in pytorch
 
-<img src="https://github.com/xalkan/FraudDetectionSOM/blob/master/output.gif" />
+<img src="https://github.com/xalkan/2DSelfDrivingCar/blob/master/output.gif" />
 
 This is the first project from the course on Artificial Intelligence A-Z after learning about the Q learning algorithm, Markov Decision Processes, Temporal Difference and Deep Q Networks.
 The goal is to train this tiny car to learn to move from top left to bottom right in a loop.
